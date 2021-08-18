@@ -1,0 +1,114 @@
+Database Name--------  project_1
+
+we create 3 tables inside it:
+1)  movies
+     create table movies (Mid int, Title string, Genres varchar(100))
+    > row format delimited
+    > fields terminated by ',';
+
+2) rating
+      create table rating (uid int, mid int,rating float, times timestamp)
+    > row format delimited
+    > fields terminated by ',';
+
+3) tags
+      create table tags (uid int, mid int,tag varchar(50), times timestamp)
+    > row format delimited
+    > fields terminated by ',';
+
+
+
+Upload the data into HDFS
+hive> LOAD DATA INPATH '/user/maria_dev/project/movies.csv'
+    > INTO TABLE project_1.movies;
+
+
+
+after loading data into hive column name of data also get imported to remove this we execute 
+ALTER TABLE movies SET TBLPROPERTIES ("skip.header.line.count"="1"); 
+
+
+01. first 5 entries from movies table
+select * from movies limit 5;
+
+02. number of unique movies
+SELECT COUNT (DISTINCT title) AS UNIQUE_MOVIES FROM movies;
+
+03. summary of ratings data
+desc rating;
+
+04. minimum rating given to a movie
+SELECT MIN(rating)  AS MIN_RATING FROM rating;
+
+05. maximum rating given to a movie
+SELECT MAX(rating)  AS MIN_RATING FROM rating;
+
+06. is any row null in tags
+SELECT * FROM tags WHERE uid is NULL OR mid is NULL OR tag is NULL OR times is NULL;
+
+07. number of unique tags
+SELECT COUNT (DISTINCT tag) AS UNIQUE_TAGS FROM tags;
+ 
+08. drop null rows from tags and create another table of the resulting rows
+create table no_null AS select * from tags where mid IS NOT NULL AND                                                                                     
+uid IS NOT NULL AND                                                                                                                                            
+tag IS NOT NULL AND                                                                                                                                               
+times IS NOT NULL;
+
+09. filtering to get the list of drama movies
+SELECT * FROM movies where genres ="Drama";
+SELECT * FROM movies where genres RLIKE 'Drama';
+
+10. total number of drama movies
+SELECT COUNT(*) FROM movies where genres ="Drama";
+
+SELECT COUNT(*) FROM movies where genres RLIKE "Drama";
+
+11. filtering to get the list of comedy movies
+SELECT * FROM movies where genres ="Comedy";
+SELECT * FROM movies where genres RLIKE 'Comedy';
+
+12. total no. of comedy movies
+SELECT COUNT(*) FROM movies where genres ="Comedy";
+SELECT COUNT(*) FROM movies where genres RLIKE "Comedy";
+
+13. search movie id by tag search
+select mid,tag from tags group by tag,mid;
+
+14. displays first 5 data from ratings table
+SELECT * FROM rating LIMIT 5;
+
+15. merging two tables movies and ratings into a new table without the "timestamp" column from the ratings table.
+create table movie_rating 
+as select m.mid,m.title,m.genres,r.rating,r.uid from movies as m, rating as r 
+where r.mid = m.mid;
+select * FROM movie_rating limit 5;
+
+16. display high rated movies (rating > 4)
+SELECT * FROM rating  WHERE rating > 4;
+SELECT m.mid, m.title,r.rating FROM movies AS m JOIN rating AS r ON m.mid=r.mid WHERE rating >4 limit 10;
+
+17. display low rated movies (rating < 4)
+SELECT * FROM rating  WHERE rating < 4;
+SELECT m.mid, m.title,r.rating FROM movies AS m JOIN rating AS r ON m.mid=r.mid WHERE rating <4 limit 10;
+
+18. total number of unique movie genres
+SELECT COUNT(DISTINCT(split(genres,'\\|'))) AS UNIQUE_GENRES FROM movies;
+
+
+19. top 25 most rated movies
+SELECT m.mid, m.title, count(rating) AS Highest_Rating  FROM movies as m right join rating as r on m.mid = r.mid group by m.mid,m.title order by Highest_Rating DESC, title LIMIT 25;
+
+20. slicing out columns to display only title and genres columns from movies table
+SELECT title ,genres FROM movies;
+
+21. extract year from title of the movie
+ SELECT regexp_extract(title,"\\([0-9](.*)",0) as year from movies;
+
+22. count how many times each of genres occur
+  SELECT genr, count(genre) from(select explode(split(genres,'\\|')) as genre from movies) as e group by genre;
+
+23. Which movie received the highest number of ratings?
+SELECT m.mid, m.title, count(rating) AS Highest_Rating  FROM movies as m right join rating as r on m.mid = r.mid group by m.mid,m.title order by Highest_Rating DESC, title LIMIT 25;
+
+
