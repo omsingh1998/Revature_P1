@@ -22,7 +22,11 @@ Upload the data into HDFS
 hive> LOAD DATA INPATH '/user/maria_dev/project/movies.csv'
     > INTO TABLE project_1.movies;
 
+hive> LOAD DATA INPATH '/user/maria_dev/project/ratings.csv'
+    > INTO TABLE project_1.rating;
 
+hive> LOAD DATA INPATH '/user/maria_dev/project/tags.csv'
+    > INTO TABLE project_1.tags;
 
 after loading data into hive column name of data also get imported to remove this we execute 
 ALTER TABLE movies SET TBLPROPERTIES ("skip.header.line.count"="1"); 
