@@ -45,10 +45,21 @@ Performing the above action you are enter to VM CLI then do the following comman
 * In hive terminal ,check database and if not create one and use the database using following command and after creating database create tables and load data from the folder in hdfs to the respected table and perform analysis using the query which are mention the txt file "project_1_command.txt"
 
 ### For creating database
-create database project1; (#"project1" is the database name here)
+create database project_1; (#"project_1" is the database name here)
 ### For work in the database
-use project1;
+use project_1;
 ### create table
+```
 CREATE TABLE movies (movieId int, title string, genres varchar(200))
 row format delimited
 fields terminated by ',';
+```
+### load data into table
+```
+LOAD DATA INPATH '/user/maria_dev/project_1/movies.csv'
+INTO TABLE project_1.movies;
+```
+The above Query are for creating table and load data in it,after loading data to the table all data from the hdfs folder are automatically removed i.e they are now loaded in the respective tables.
+
+## Usage
+Using this project any one can perform analysis with the movielens dataset
